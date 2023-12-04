@@ -1,0 +1,57 @@
+---
+title: "Projet R/Julia"
+author: "Gabriel Macé"
+format: revealjs
+editor: visual
+---
+
+## Mon projet
+
+-   Tout d'abord
+
+-   Puis
+
+-   enfin
+
+***
+## Slide 2
+:::: {style="display: flex;"}
+
+::: {}
+### Le git
+\n
+
+[lien](https://github.com/gabrielmaceee/Mon_Package_Julia.jl)
++ description vite fait
+
+:::
+:::{}
+### Le jeu de données
+\n
+
+[Lien kaggle](https://www.kaggle.com/datasets/debajyotipodder/co2-emission-by-vehicles?select=CO2+Emissions_Canada.csv)
+Description 
+:::
+::::
+
+
+## D'abord avec R
+
+### Statistiques descriptives
+
+![Ethanol vs le reste](Rplot.png)
+
+## Test
+
+<img src="Rplot.png"></img>
+<style>
+.midcenter {
+    position: fixed;
+    top: 100%;
+    left: 0%;
+}
+</style>
+
+## Puis avec Julia
+
+### Modèle de machine learning prédiction

@@ -1,0 +1,188 @@
+emission <-read.csv("CO2 Emissions_Canada.csv") # importation de la base de données
+View(emission)
+summary(emission)
+# variables qualitatives nominales : Make, model, Transmission, Fuel type, vehicle.class
+nominales <- c(emission$Make, emission$Model, emission$Transmission, emission$Fuel.Type, emission$Vehicle.Class)
+
+# variables qualitatives ordinales : 
+# variables quantitatives continues : engine.size, Fuels consuption *4, C02 emission, on peut enlever mpg
+continues <- c(emission$Engine.Size, emission$Consommation.ville, emission$Consommation.autoroute, emission$Consommation.mixte, emission$Consommation.mixte.mpg, emission$CO2_emissions)
+# variables quantitatives discrètes :  Cylinders
+length(unique(emission$Engine.Size.L.)) # on le mets en continue
+# rendre les variables quali nominales sur R:
+emission$Make<-factor(emission$Make)
+emission$Model<-factor(emission$Model)
+emission$Transmission<-factor(emission$Transmission)
+emission$Fuel.Type<-factor(emission$Fuel.Type)
+emission$Vehicle.Class<-factor(emission$Vehicle.Class)
+
+# renommer les variables : 
+names(emission)[names(emission)=="Engine.Size.L."]<-"Engine.Size"
+names(emission)[names(emission)=="Fuel.Consumption.City..L.100.km."]<-"Consommation.ville"
+names(emission)[names(emission)=="Fuel.Consumption.Hwy..L.100.km."]<-"Consommation.autoroute"
+names(emission)[names(emission)=="Fuel.Consumption.Comb..L.100.km."]<-"Consommation.mixte"
+names(emission)[names(emission)=="Fuel.Consumption.Comb..mpg."]<-"Consommation.mixte.mpg"
+names(emission)[names(emission)=="CO2.Emissions.g.km."]<-"CO2_emissions"
+names(emission)
+
+#variables quanti continues : 
+emission$Engine.Size<-as.double(emission$Engine.Size)
+emission$Consommation.autoroute<-as.double(emission$Consommation.autoroute)
+emission$Consommation.ville<-as.double(emission$Consommation.ville)
+emission$Consommation.mixte<-as.double(emission$Consommation.mixte)
+emission$Consommation.mixte.mpg<-as.double(emission$Consommation.mixte.mpg)
+emission$CO2_emissions<-as.double(emission$CO2_emissions)
+
+# variable quanti discrète : 
+emission$Cylinders<-as.integer(emission$Cylinders)
+length(unique(emission$Cylinders))
+
+
+### Description univariée :
+# Quali nominales :
+summary(emission$Make)
+sort(table(emission$Make))
+# Certaines modalité sont peu représentée (bugatti=3, srt=2), et d'autres beaucoup plus (Chervrolet=588, Ford = 628)
+barplot(table(emission$Make))
+barplot(sort(table(emission$Make)))
+pie(table(emission$Make))
+# pas très pertinents car trop de modalités
+
+summary(emission$Model)
+barplot(table(emission$Model))
+# pareil mais pire
+
+summary(emission$Transmission)
+sort(table(emission$Transmission))
+# repartition très inegales, fortes variances, max= 1324, min =2
+barplot(sort(table(emission$Transmission)))
+
+summary(emission$Fuel.Type)
+# D    E    N    X    Z 
+#175  370    1 3637 3202
+barplot(table(emission$Fuel.Type))
+pie(table(emission$Fuel.Type))
+# beaucoup d'essence et d'essence premium, peu de diesel et d'éthanol, 1 seul gaz naturel = ? l'enlever ?
+
+summary(emission$Vehicle.Class)
+# Encore une répartition assez inégale, max =1217, min =22 
+barplot(table(emission$Vehicle.Class))
+
+# Quanti continues : 
+summary(emission$Engine.Size)
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#0.90    2.00    3.00    3.16    3.70    8.40 
+table(emission$Engine.Size)
+hist(emission$Engine.Size)
+# 2L =+++, à peu près égales entre [2;4], et moins dans [0;2] et [4;8]
+
+summary(emission$Consommation.ville)
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#4.20   10.10   12.10   12.56   14.60   30.60 
+hist(emission$Consommation.ville)
+# ~~loi normale, de moyenne 12.56, et de var 12.25
+var(emission$Consommation.ville)
+
+summary(emission$Consommation.autoroute)
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#4.000   7.500   8.700   9.042  10.200  20.600 
+hist(emission$Consommation.autoroute)
+# ~~ loi normale, de moyenne 9, et de var 4.9, inferieur à la conso ville
+var(emission$Consommation.autoroute)
+
+summary(emission$Consommation.mixte) # 55% ville, 45% autoroute
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#4.10    8.90   10.60   10.98   12.60   26.10 
+screen(1)
+hist(emission$Consommation.mixte)
+# ~~ loi normale, moyenne 10.98, var 8.37, c'est bien un mixte des 2 précédents
+var(emission$Consommation.mixte)
+screen(2)
+hist(emission$Consommation.mixte.mpg)# répartition semblables mais avec des valeurs plus élevés
+var(emission$Consommation.mixte.mpg)# 52.3
+mean(emission$Consommation.mixte.mpg) # 27.5
+split.screen(1:2)
+close.screen(all=TRUE)
+
+summary(emission$CO2_emissions)
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#96.0   208.0   246.0   250.6   288.0   522.0 
+hist(emission$CO2_emissions)
+# loi normale, moyenne 250.6, var 3423.7
+var(emission$CO2_emissions)
+boxplot(emission$CO2_emissions)
+
+cut=cut(emission$CO2_emissions,15)
+plot(cut)
+
+
+summary(emission$Cylinders)
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#3.000   4.000   6.000   5.615   6.000  16.000
+hist(emission$Cylinders) # ressemble à une loi de xhi2, beaucoupe de 4 cylindre, puis diminue avec le nombre de cylindres
+barplot(table(emission$Cylinders))
+# peu d'impair
+# quantitative ou continue ? 
+
+
+### Description multivariée : 
+plot(emission$Make, emission$CO2_emissions) # pas utile, model non plus
+# Tables contingences ?
+make_co2 <- table( emission$CO2_emissions,emission$Make)
+
+
+plot(emission$Transmission, emission$CO2_emissions) # pas d'infos
+
+
+plot(emission$Vehicle.Class, emission$CO2_emission)
+
+plot(emission$Fuel.Type, emission$CO2_emission)
+# ! important, ethanolsemble être le plus emetteur de CO2
+
+
+
+plot(emission$Cylinders, emission$CO2_emissions) # le nbre de cylindres semble avoir un effet sur l'emission de C02
+cor(emission$Cylinders, emission$CO2_emissions) # 0.83
+
+plot(emission$Engine.Size, emission$CO2_emissions) # la taille du moteur semble avoir un effet sur l'émission de C02
+cor(emission$Engine.Size, emission$CO2_emissions) # 0.85
+
+
+plot(emission$Consommation.autoroute, emission$CO2_emissions) # trés corrélés mais semble y avoir 2 groupes
+cor(emission$Consommation.autoroute, emission$CO2_emissions) # 0.88
+
+gp = emission[emission$Fuel.Type=="E",] 
+gp2 = emission[emission$Fuel.Type!="E",] 
+plot( emission$CO2_emissions)
+lines(gp$Consommation.autoroute, gp$CO2_emissions, col="red")
+lines(gp2$Consommation.autoroute, gp2$CO2_emissions, col="blue")
+### Il y a un groupe éthanol ,et un groupe avec le reste
+colors <- c("orange","green","black","blue", "red")
+plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)], main = "Emission de CO 2en connaissant le type de carburant")
+legend("topleft",legend = levels(factor(emission$Fuel.Type)), pch=19,col = colors)
+
+colors <- c("red","green","red","red","red")
+plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)], main = "Emission de CO2 en connaissant le carburant")
+legend("topleft",legend = c("Autre","E"), pch=19,col = colors)
+
+
+plot(emission$Consommation.ville, emission$CO2_emissions)
+lines(gp$Consommation.ville, gp$CO2_emissions, col="red")
+lines(gp2$Consommation.ville, gp2$CO2_emissions, col="blue")
+cor(emission$Consommation.ville, emission$CO2_emissions) # 0.92
+
+plot(emission$Consommation.mixte, emission$CO2_emissions)
+lines(gp$Consommation.mixte, gp$CO2_emissions, col="red")
+lines(gp2$Consommation.mixte, gp2$CO2_emissions, col="blue")
+cor(emission$Consommation.mixte, emission$CO2_emissions) # 0.92
+
+plot(emission$Consommation.mixte.mpg, emission$CO2_emissions)
+lines(gp$Consommation.mixte.mpg, gp$CO2_emissions, col="red")
+lines(gp2$Consommation.mixte.mpg, gp2$CO2_emissions, col="blue")
+cor(emission$Consommation.mixte.mpg, emission$CO2_emissions) # -0.91
+
+
+library(shiny)
+runApp("App")
+
+
