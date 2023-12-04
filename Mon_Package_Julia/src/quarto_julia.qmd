@@ -1,0 +1,11 @@
+---
+title: "Quarto Julia"
+format: html
+author: "Gabriel Macé"
+date: today
+description: "Ceci est mon script Quarto avec Julia"
+---
+```{julia}
+using DataFrames
+```
+[Lien kaggle](https://www.kaggle.com/datasets/debajyotipodder/co2-emission-by-vehicles?select=CO2+Emissions_Canada.csv)
