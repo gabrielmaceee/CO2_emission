@@ -57,5 +57,4 @@ function predire_val_arbre(Marque, Modele, Class, Taille_moteur, Cylindres, Tran
 end
 
 export f, predire_knn, predire_svm, predire_arbre_int, predire_val_arbre
-#knn = JLD2.load_object("D:/Master/S7/R-Julia/Projet/Mon_Package_Julia/src/knn_classif.jld2")
 export knn

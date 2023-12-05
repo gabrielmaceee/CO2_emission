@@ -1,7 +1,7 @@
 using MLJ
 using JLD2
 using DataFrames, PlotlyJS, CSV, RDatasets
-
+using Mon_Package_Julia
 SVC = MLJ.@load SVC pkg=LIBSVM
 KNNClassifier = MLJ.@load KNNClassifier
 MyDecisionTree = MLJ.@load DecisionTreeClassifier pkg = DecisionTree
@@ -14,7 +14,6 @@ rename!(df, :"CO2 Emissions(g/km)"=> "CO2")
 rename!(df, :"Fuel Consumption Comb (L/100 km)"=>"Comb")
 rename!(df, :"Fuel Type"=>"Fuel")
 p1 = Plot(df, x=:Comb, y=:CO2, mode="markers", marker_size=8, text=:Make, group=:Fuel)
-#p1 = PlotlyJS.scatter(df, x=:Comb, y=:CO2, mode="markers", marker_size=8, text=:Make, group=:Fuel)
 
 using Dash
 
