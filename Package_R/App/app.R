@@ -1,9 +1,15 @@
 #### Shiny 
 
-setwd("D:/Master/S7/R-Julia/Projet")
-emission <-read.csv("CO2 Emissions_Canada.csv")
-marque <- unique(emission[,1])
 
+emission <-read.csv("../CO2 Emissions_Canada.csv")
+marque <- unique(emission[,1])
+carburant <-function(carb){
+  if(carb == "X") return("Essence classique")
+  if(carb == "Z") return("Essence premium")
+  if(carb == "D") return("Diesel")
+  if(carb == "E") return("Ethanol")
+  else return("Gaz naturel")
+}
 size<-marque
 c=0
 for(i in marque){

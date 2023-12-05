@@ -1,12 +1,25 @@
 emission <-read.csv("CO2 Emissions_Canada.csv") # importation de la base de données
 View(emission)
 summary(emission)
+
+# renommer les types de carburants :
+carburant <-function(carb){
+  if(carb == "X") return("Essence classique")
+  if(carb == "Z") return("Essence premium")
+  if(carb == "D") return("Diesel")
+  if(carb == "E") return("Ethanol")
+  else return("Gaz naturel")
+}
+for(i in 1:7385){
+  emission$Fuel.Type[i] <- carburant(emission$Fuel.Type[i])
+}
+
 # variables qualitatives nominales : Make, model, Transmission, Fuel type, vehicle.class
-nominales <- c(emission$Make, emission$Model, emission$Transmission, emission$Fuel.Type, emission$Vehicle.Class)
+nominales <- c("Make", "Model", "Transmission", "Fuel.Type", "Vehicle.Class")
 
 # variables qualitatives ordinales : 
 # variables quantitatives continues : engine.size, Fuels consuption *4, C02 emission, on peut enlever mpg
-continues <- c(emission$Engine.Size, emission$Consommation.ville, emission$Consommation.autoroute, emission$Consommation.mixte, emission$Consommation.mixte.mpg, emission$CO2_emissions)
+continues <- c("Engine.Size", "Consommation.ville", "Consommation.autoroute", "Consommation.mixte", "Consommation.mixte.mpg")
 # variables quantitatives discrètes :  Cylinders
 length(unique(emission$Engine.Size.L.)) # on le mets en continue
 # rendre les variables quali nominales sur R:
@@ -36,6 +49,8 @@ emission$CO2_emissions<-as.double(emission$CO2_emissions)
 # variable quanti discrète : 
 emission$Cylinders<-as.integer(emission$Cylinders)
 length(unique(emission$Cylinders))
+
+
 
 
 ### Description univariée :
@@ -157,13 +172,13 @@ plot( emission$CO2_emissions)
 lines(gp$Consommation.autoroute, gp$CO2_emissions, col="red")
 lines(gp2$Consommation.autoroute, gp2$CO2_emissions, col="blue")
 ### Il y a un groupe éthanol ,et un groupe avec le reste
-colors <- c("orange","green","black","blue", "red")
-plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)], main = "Emission de CO 2en connaissant le type de carburant")
-legend("topleft",legend = levels(factor(emission$Fuel.Type)), pch=19,col = colors)
+colors <- c("orange","black","blue", "green","red")
+plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)], main = "Emission de CO2 en connaissant le type de carburant")
+legend("topleft",legend = levels(factor(emission$Fuel.Type)), pch=19,col = colors, cex = 0.75)
 
-colors <- c("red","green","red","red","red")
+colors <- c("red","red","red","green","red")
 plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)], main = "Emission de CO2 en connaissant le carburant")
-legend("topleft",legend = c("Autre","E"), pch=19,col = colors)
+legend("topleft",legend = c("Autre","Ethanol"), pch=19,col = colors)
 
 
 plot(emission$Consommation.ville, emission$CO2_emissions)
@@ -180,6 +195,22 @@ plot(emission$Consommation.mixte.mpg, emission$CO2_emissions)
 lines(gp$Consommation.mixte.mpg, gp$CO2_emissions, col="red")
 lines(gp2$Consommation.mixte.mpg, gp2$CO2_emissions, col="blue")
 cor(emission$Consommation.mixte.mpg, emission$CO2_emissions) # -0.91
+
+chisq.test(emission$Consommation.ville, emission$CO2_emissions) # p-value < 2.2e-16, effet
+chisq.test(emission$Consommation.mixte, emission$CO2_emissions) # p-value < 2.2e-16
+summary(lm(CO2_emissions~Fuel.Type,emission)) # p-value: < 2.2e-16, effet
+
+l=c()
+for(i in nominales){
+   l = c(l, i, summary(lm(emission$CO2_emissions~emission[,i]))$coefficients[2,4])
+}
+# Pas d'effet de la marque ni du modèle (surement trop de groupe) sur le taux d'émission, maiis effet du type de 
+# transmission, du type de carburant, et de la classe du véhicule
+for(i in continues){
+  l = c(l,i,chisq.test(emission[,i], emission$CO2_emissions)$p.value)
+}
+# Tous un effet sur le taux d'émissions de CO2
+
 
 
 library(shiny)
