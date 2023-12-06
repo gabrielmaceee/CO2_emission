@@ -29,7 +29,7 @@ Enfin, le jeu de données ne contient pas de valeurs manquantes, ce qui facilite
 emission <-read.csv("CO2 Emissions_Canada.csv")
 ```
 
-Pour cette partie, j'ai tout d'abord créer un package R : "Package_R", mais en suite j'ai utilisé R en tant qu'utilisateur plutôt que programmeur, étant donné étant donné qu'il existe déja beaucoup de fonction permettant l'analyse statistique. J'ai seulement créé une fonction permettant de changé le nom des carburants afin de les rendres compréhensible :
+Pour cette partie, j'ai tout d'abord créer un package R : "Package_R", mais en suite j'ai utilisé R en tant qu'utilisateur plutôt que programmeur, étant donné étant donné qu'il existe déja beaucoup de fonction permettant l'analyse statistique. J'ai seulement créé une fonction permettant de changé le nom des carburants afin de les rendre compréhensible s:
 ```{r}
 carburant <-function(carb){
   if(carb == "X") return("Essence classique")
@@ -46,14 +46,24 @@ Puis j'ai créé une application Shiny afin de permettre une visualisation aisé
 
 ### Analyse statistiques 
 
-Description univariée : 
-- Plot et table 
-- Test loi 
-Info sur la normalité malheuresement pas de tests de shapiro.wilk car échantillon trop grand.
+J'ai tout d'abord rendu les données exploitable en renommant les variables, en transformant les variables continues en double, les variables discrètes en integer, et en rendant factorielles les variables qualitatives.
 
-Description mulitvariée : 
-- Plot 
-- Calcul de corrélation - Test anova
+#### Analyse univariée : 
+
+ * Calcul des st
+ * Plot et table pour comprendre la distribution des variables
+```{r}
+ names(emission)[names(emission)=="CO2.Emissions.g.km."]<-"CO2_emissions"
+ emission$CO2_emissions<-as.double(emission$CO2_emissions)
+ hist(emission$CO2_emissions)
+```
+ * Test loi : Info sur la normalité malheuresement pas de tests de shapiro.wilk car échantillon trop grand.
+
+#### Analyse mulitvariée : 
+ * Plot 
+ * Calcul de corrélation 
+ * Test anova
+ 
 Par exemple, consommation mixte et émission de CO2 très corrélés, plus groupe conso émission : éthanol vs le reste
 
 ### Application Shiny
@@ -64,11 +74,82 @@ Par exemple, consommation mixte et émission de CO2 très corrélés, plus group
 
 Les packages utilisés Les modèles utilisés Les fonctions de prédiction marche avec des nulls pour certaines variables tsais
 Train vs test
+pas naives Bayes
+
+Pas de one hot encoding -> créé trop de variables pour pas assez de bénéfices
+Pour tout sauf arbre de prédiction car régression : Emission de CO2-> intervalles
+KNN:
+Que données numériques : garde que Engine	Cylinders	City	Hwy	Comb  centrés et réduits+ le type de carburant sous formes de 1=ethanol ou 0 =autres
+Accuracy=0.8744920993227991
+
+erreur=0.1255079006772009
+
+SVM : 
+pareil knn
+misclassification_rate(ypred, y[test])
+sans train test : 0.17562626946513202
+avec train test : 0.2383747178329571
+Avec onehotencoding et standardisation : 0.2383747178329571
+juste quanti normalisé et gpe éthanol / pas éthanol : 0.21760722347629796
+
+Arbre classif : Pas de centrér / réduire car pas besoin -> calcul de discrimination par vairable ne dépend pas de l'échelle des données
+println(accuracy(ypred, ycut[test]))
+correct_classes = count(ycut[test] .== ypred)
+sans séparateur ethanol/ autres : 0.8474040632054176 1877
+avec : 0.8478555304740406 1878 -> pas besoin de le mettre
+
+feature_importances(dc_mach)
+ :Comb => 0.6884300907914488
+          :mpg => 0.13632411706780562
+         :Fuel => 0.06304304492675829
+        :Model => 0.024815616034138187
+          :Hwy => 0.020684547820196953
+         :City => 0.018899549252805934
+ :Transmission => 0.015229398070205001
+         :Make => 0.012218636352082814
+        :Class => 0.009817851434885375
+       :Engine => 0.009157560861057703
+    :Cylinders => 0.0013795873886153665
+    
+
+arbre prediction : 
+Avec séparateur ethanol / autres :
+distance moyenne : 2.3221264890113633
+distance max 82.375 i = 38
+distance min 0.0 i = 10
+0.8126410835214447
+4.64
+Mieux avec 
+
+features importances :
+12-element Vector{Pair{Symbol, Float64}}:
+         :Comb => 0.9468955190288346
+           :x1 => 0.04072398439516061
+         :Fuel => 0.008915364610652754
+          :mpg => 0.002059993780793983
+         :Make => 0.0002781544095387943
+         :City => 0.0002618791574918742
+          :Hwy => 0.0002515058094895561
+       :Engine => 0.0002043988304768994
+        :Model => 0.0001975699501606361
+ :Transmission => 0.00011767092304548185
+        :Class => 6.361214981587146e-5
+    :Cylinders => 3.0346954538855293e-5
 ### Création de package avec github
 
 Interface_julia.jl ne dépend que de fonctions.jl qui ne dépend d'aucun autre fichier car j'ai exporté les modèles finis et optimisés.
 
 ### Interface avec Dash.jl
+
+Au début je voulais faire en sorte que le véhicule prédit se voit dans le graphique mais je n'ai pas réussi à faire apparaitre le point.
+
+## Problèmes rencontrés :
+
+Importation de package bugger souvent, j'ai du supprimer Julia, défragmenter mon disque dur, tout réinstaller.
+Plusieurs fois.
+Super.
+Top.
+Belle expérience.
 
 ## CCL :
 

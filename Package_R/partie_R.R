@@ -53,7 +53,7 @@ length(unique(emission$Cylinders))
 
 
 
-### Description univariée :
+### Analyse univariée :
 # Quali nominales :
 summary(emission$Make)
 sort(table(emission$Make))
@@ -140,7 +140,7 @@ barplot(table(emission$Cylinders))
 # quantitative ou continue ? 
 
 
-### Description multivariée : 
+### Analyse multivariée : 
 plot(emission$Make, emission$CO2_emissions) # pas utile, model non plus
 # Tables contingences ?
 make_co2 <- table( emission$CO2_emissions,emission$Make)

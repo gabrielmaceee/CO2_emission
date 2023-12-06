@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -70,7 +104,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="description-du-projet" class="level2">
 <h2 class="anchored" data-anchor-id="description-du-projet">Description du projet</h2>
 <p>Mon projet est un projet d’apprentissage supervisé, dont le but est de prédire le taux d’émission d’une voiture en fonction de ses caractéristiques.</p>
-<p>Pourquoi? Sciences des données</p>
+<p>Le choix d’un projet de machine learning vient du fait que les sciences des données sont un domaine qui m’intéresse particulièrement et dans lequel je n’avais que peu eu l’occasion de réaliser un projet assez poussé. De plus, j’avais déja repéré le jeu de données utilisé, il ne manquait plus que la bonne occasion pour l’exploiter.</p>
 <p>J’ai décidé de le réaliser en deux parties : Une première avec R qui a pour but une analyse des données, et une deuxième avec Julia dont le but est de créer des modèles de classification. J’ai choisi d’utiliser R et RStudio pour analyser les données car ce sont les outils que je trouve les plus pratiques pour ce genre de tâches. Ensuite j’ai décider d’utiliser Julia pour réaliser les modèles car c’est un langage que je ne connaissais pas, et que je souhaitais apprendre et comparer avec Python et R, pour cette partie j’ai utiliser VSCode et jupyter Notebook afin de simplifier et clarifier mon code.</p>
 </section>
 <section id="description-du-jeu-de-données" class="level2">
@@ -80,10 +114,52 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="partie-r" class="level2">
 <h2 class="anchored" data-anchor-id="partie-r">Partie R</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>emission <span class="ot">&lt;-</span><span class="fu">read.csv</span>(<span class="st">"CO2 Emissions_Canada.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Pour cette partie, j’ai tout d’abord créer un package R : “Package_R”, mais en suite j’ai utilisé R en tant qu’utilisateur plutôt que programmeur, étant donné étant donné qu’il existe déja beaucoup de fonction permettant l’analyse statistique. J’ai seulement créé une fonction permettant de changé le nom des carburants afin de les rendre compréhensible s:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>carburant <span class="ot">&lt;-</span><span class="cf">function</span>(carb){</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(carb <span class="sc">==</span> <span class="st">"X"</span>) <span class="fu">return</span>(<span class="st">"Essence classique"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(carb <span class="sc">==</span> <span class="st">"Z"</span>) <span class="fu">return</span>(<span class="st">"Essence premium"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(carb <span class="sc">==</span> <span class="st">"D"</span>) <span class="fu">return</span>(<span class="st">"Diesel"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(carb <span class="sc">==</span> <span class="st">"E"</span>) <span class="fu">return</span>(<span class="st">"Ethanol"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="fu">return</span>(<span class="st">"Gaz naturel"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7385</span>){</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  emission<span class="sc">$</span>Fuel.Type[i] <span class="ot">&lt;-</span> <span class="fu">carburant</span>(emission<span class="sc">$</span>Fuel.Type[i])</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Puis j’ai créé une application Shiny afin de permettre une visualisation aisée des données, chose que je n’avais jamais fait au paravant.</p>
 <section id="analyse-statistiques" class="level3">
 <h3 class="anchored" data-anchor-id="analyse-statistiques">Analyse statistiques</h3>
-<p>Description univariée : - Plot et table - Test loi</p>
-<p>Description mulitvariée : - Plot - Calcul de corrélation - Test anova</p>
+<p>J’ai tout d’abord rendu les données exploitable en renommant les variables, en transformant les variables continues en double, les variables discrètes en integer, et en rendant factorielles les variables qualitatives.</p>
+<section id="analyse-univariée" class="level4">
+<h4 class="anchored" data-anchor-id="analyse-univariée">Analyse univariée :</h4>
+<ul>
+<li>Plot et table pour comprendre la distribution des variables</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a> <span class="fu">names</span>(emission)[<span class="fu">names</span>(emission)<span class="sc">==</span><span class="st">"CO2.Emissions.g.km."</span>]<span class="ot">&lt;-</span><span class="st">"CO2_emissions"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a> emission<span class="sc">$</span>CO2_emissions<span class="ot">&lt;-</span><span class="fu">as.double</span>(emission<span class="sc">$</span>CO2_emissions)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a> <span class="fu">hist</span>(emission<span class="sc">$</span>CO2_emissions)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Rapport_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>Test loi : Info sur la normalité malheuresement pas de tests de shapiro.wilk car échantillon trop grand.</li>
+</ul>
+</section>
+<section id="analyse-mulitvariée" class="level4">
+<h4 class="anchored" data-anchor-id="analyse-mulitvariée">Analyse mulitvariée :</h4>
+<ul>
+<li>Plot</li>
+<li>Calcul de corrélation</li>
+<li>Test anova</li>
+</ul>
+<p>Par exemple, consommation mixte et émission de CO2 très corrélés, plus groupe conso émission : éthanol vs le reste</p>
+</section>
 </section>
 <section id="application-shiny" class="level3">
 <h3 class="anchored" data-anchor-id="application-shiny">Application Shiny</h3>
@@ -98,7 +174,12 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="interface-avec-dash.jl" class="level3">
 <h3 class="anchored" data-anchor-id="interface-avec-dash.jl">Interface avec Dash.jl</h3>
+<p>Au début je voulais faire en sorte que le véhicule prédit se voit dans le graphique mais je n’ai pas réussi à faire apparaitre le point.</p>
 </section>
+</section>
+<section id="problèmes-rencontrés" class="level2">
+<h2 class="anchored" data-anchor-id="problèmes-rencontrés">Problèmes rencontrés :</h2>
+<p>Importation de package bugger souvent, j’ai du supprimer Julia, défragmenter mon disque dur, tout réinstaller. Plusieurs fois. Super. Top. Belle expérience. Puis JDL2 à décider de ne plus fonctionner, quel enculé, à l’heure actuelle je n’ai pas trouvé la solution.</p>
 </section>
 <section id="ccl" class="level2">
 <h2 class="anchored" data-anchor-id="ccl">CCL :</h2>
