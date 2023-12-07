@@ -6,52 +6,117 @@ editor: visual
 ---
 
 ## Mon projet
+<font size="5"> 
+Mon projet est un projet d'apprentissage supervisé, dont le but est de prédire le taux d'émission d'une voiture en fonction de ses caractéristiques.
 
--   Tout d'abord
+J'ai décidé de le réaliser en deux parties : Une première avec R qui a pour but une analyse des données, et une deuxième avec Julia dont le but est de créer des modèles de classification. Chacune de ces parties contient une interface graphique.
+</font> 
 
--   Puis
+### Où le trouver :  
+<font size="5">
+Le projet complet est disponible sur [Github](https://github.com/gabrielmaceee/CO2_emission), vous pourrez y retrouver le package R, le package Julia, ainsi qu'un fichier CSV contenant le jeu de données.
 
--   enfin
+Mais le plus simple pour utiliser le package julia est de l'importer depuis cette [adresse](https://github.com/gabrielmaceee/Mon_Package_Julia.jl).
+</font>
 
-***
-## Slide 2
-:::: {style="display: flex;"}
+## Le jeu de données
+<font size="5">
+Le jeu de données provient du site [kaggle](https://www.kaggle.com/datasets/debajyotipodder/co2-emission-by-vehicles?select=CO2+Emissions_Canada.csv).
 
-::: {}
-### Le git
-\n
+C'est une version compilé des données provenant du [site officiel](https://open.canada.ca/data/en/dataset/98f1a129-f628-4ce4-b24d-6f16bf24dd64#wb-auto-6) de données ouvertes du gouvernement Canadien. Il représente 7385 ainsi que leurs caractéristiques et leur taux d'émission de CO2.
 
-[lien](https://github.com/gabrielmaceee/Mon_Package_Julia.jl)
-+ description vite fait
-
-:::
-:::{}
-### Le jeu de données
-\n
-
-[Lien kaggle](https://www.kaggle.com/datasets/debajyotipodder/co2-emission-by-vehicles?select=CO2+Emissions_Canada.csv)
-Description 
-:::
-::::
-
+</font>
 
 ## D'abord avec R
 
-### Statistiques descriptives
+### Analyse univariée
+<font size="5">
+Calcul des statistiques basiques (moyennes, variances, quartiles...), analyse des distributions...
 
-![Ethanol vs le reste](Rplot.png)
+Les variables quantitatives continues du jeu de données suivent une loi normale, comme nous pouvons le voir ici avec le taux de CO2 émis par km.
+</font>
+```{r}
+emission <-read.csv("CO2 Emissions_Canada.csv")
+names(emission)[names(emission)=="CO2.Emissions.g.km."]<-"CO2_emissions"
+emission$CO2_emissions<-as.double(emission$CO2_emissions)
+hist(emission$CO2_emissions)
+```
 
-## Test
 
-<img src="Rplot.png"></img>
-<style>
-.midcenter {
-    position: fixed;
-    top: 100%;
-    left: 0%;
+***
+
+### Analyse bivariée
+
+<font size="5">
+Voici un résultat que j'ai obtenu : Il me permet de voir qu'il existe deux groupes lorsqu'on regarde les émissions de CO2 en fonction de la consommation : le carburant éthanol contre les autres types de carburants.</font>
+```{r}
+names(emission)[names(emission)=="Fuel.Consumption.Hwy..L.100.km."]<-"Consommation.autoroute"
+carburant <-function(carb){
+  if(carb == "X") return("Essence classique")
+  if(carb == "Z") return("Essence premium")
+  if(carb == "D") return("Diesel")
+  if(carb == "E") return("Ethanol")
+  else return("Gaz naturel")
 }
-</style>
+for(i in 1:7385){
+  emission$Fuel.Type[i] <- carburant(emission$Fuel.Type[i])
+}
+colors <- c("red","red","red","green","red")
+plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)],   main = "Emission de CO2 en connaissant le carburant")
+legend("topleft",legend = c("Autre","Ethanol"), pch=19,col = c("red","green"))
+```
+***
+
+### Application R Shiny
+<font size = "5">
+A travers cette application, nous pouvons avoir avoir une idée des marques dont les voitures émettent le plus de CO2, et de voir que la taille du moteur et la consommation moyenne sont corrélés au taux de CO2 émis. Dans le tableau de droite, nous pouvons voir directement les moyennes de quelques variables par marques, que l'on peu trier par ordre croissant et décroissant, et sur le graphique de gauche nous pouvons visualiser ces données, on peut afficher en rouge la courbe d'une marque en la séléctionnant dans l'onglet juste en dessous.
+</font>
+![Mon application Shiny:](Images/r_shiny.png){ width=50% }
 
 ## Puis avec Julia
 
-### Modèle de machine learning prédiction
+### Modèle de machine learning 
+<font size = "5">
+Voici les modèles que j'ai utilisé ainsi que leurs scores :
+
+#### KNN :
+J'obtient une accuracy de 0.87, et donc un taux d'erreur de 13%, ce qui me satisfait.
+
+
+##### SVM : 
+J'obtient une accuracy de 0.783, et donc un taux d'erreur de 21,7%, ce qui représente une erreur sur 5 prédiction, ce qui n'est pas terrible
+
+##### Arbre de classification :
+J'obtient une accuracy de 0.847, et donc un taux d'erreur de 15.3%, ce quiest moins bon que le KNN mais quand même satisfaisant.
+
+
+##### Arbre de prédiction : 
+Voici quelque socre que j'ai calculé : 
+ * la distance moyenne entre la valeur prédite et la valeur réelle est 2.32.
+ * La distance maximum est de 82.375, ce qui est assez grand.
+ * La distance minimum est de 0, donc prédit parfaitement.
+Outre les valeurs extrèmes, les prédictions sont satisfaisantes.
+</font>
+
+***
+
+### Interface avec Dash.jl
+<font size ="5">
+J'ai créé une interface graphique avec Dash.jl, elle se veut sobre car le plus important ici est la prédiction des données.
+
+Il suffit de remplacer les noms des variables dans les cases par ses propres données, tant qu'il n'y a pas assez de variables entrées, la prédiction affiche "non", sinon la prédiction s'affiche en face du modèle correspondant.
+![Mon application Shiny:](Images/interface_julia.png)
+
+J'ai aussi ajouter un graphique contenant le taux d'émission de CO2 des véhicules en mettant en valeur les types de carburant.
+</font>
+
+## Conclusion :
+<font size = "5">
+Je suis assez satisfait de ce projet.
+
+En effet, celui-ci m'a permis de prendre en main de nouveau outils, tel que Julia, Dash, et R Shiny, ce qui me sera très utile pour la suite. Cependant, je n'ai pas réussi à voir deux grandes différences entre Python, que je connaissais déja, et Julia pour faire du machine learning.
+
+Je suis aussi satisfait de mon projet car j'ai réussi à créer quatres modèles assez fiables, et je les ai rendus assez simples à utiliser.
+
+
+</font>

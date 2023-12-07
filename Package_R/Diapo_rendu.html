@@ -338,40 +338,62 @@ Gabriel Macé
 </section>
 <section id="mon-projet" class="slide level2">
 <h2>Mon projet</h2>
-<ul>
-<li><p>Tout d’abord</p></li>
-<li><p>Puis</p></li>
-<li><p>enfin</p></li>
-</ul>
+<p><font size="5"> Mon projet est un projet d’apprentissage supervisé, dont le but est de prédire le taux d’émission d’une voiture en fonction de ses caractéristiques.</font></p><font size="5">
+</font><p><font size="5">J’ai décidé de le réaliser en deux parties : Une première avec R qui a pour but une analyse des données, et une deuxième avec Julia dont le but est de créer des modèles de classification. Chacune de ces parties contient une interface graphique. </font></p>
+<h3 id="où-le-trouver">Où le trouver :</h3>
+<p><font size="5"> Le projet complet est disponible sur <a href="https://github.com/gabrielmaceee/CO2_emission">Github</a>, vous pourrez y retrouver le package R, le package Julia, ainsi qu’un fichier CSV contenant le jeu de données.</font></p><font size="5">
+</font><p><font size="5">Mais le plus simple pour utiliser le package julia est de l’importer depuis cette <a href="https://github.com/gabrielmaceee/Mon_Package_Julia.jl">adresse</a>. </font></p>
 </section>
-<section id="slide-2" class="slide level2">
-<h2>Slide 2</h2>
-<div style="display: flex;">
-<h3 id="le-git">Le git</h3>
-<p><a href="https://github.com/gabrielmaceee/Mon_Package_Julia.jl">lien</a> + description vite fait</p>
-<h3 id="le-jeu-de-données">Le jeu de données</h3>
-<p><a href="https://www.kaggle.com/datasets/debajyotipodder/co2-emission-by-vehicles?select=CO2+Emissions_Canada.csv">Lien kaggle</a> Description</p>
-</div>
+<section id="le-jeu-de-données" class="slide level2">
+<h2>Le jeu de données</h2>
+<p><font size="5"> Le jeu de données provient du site <a href="https://www.kaggle.com/datasets/debajyotipodder/co2-emission-by-vehicles?select=CO2+Emissions_Canada.csv">kaggle</a>.</font></p><font size="5">
+<p>C’est une version compilé des données provenant du <a href="https://open.canada.ca/data/en/dataset/98f1a129-f628-4ce4-b24d-6f16bf24dd64#wb-auto-6">site officiel</a> de données ouvertes du gouvernement Canadien. Il représente 7385 ainsi que leurs caractéristiques et leur taux d’émission de CO2.</p>
+</font><p><font size="5"></font></p>
 </section>
 <section id="dabord-avec-r" class="slide level2">
 <h2>D’abord avec R</h2>
-<h3 id="statistiques-descriptives">Statistiques descriptives</h3>
+<h3 id="analyse-univariée">Analyse univariée</h3>
+<p><font size="5"> Calcul des statistiques basiques (moyennes, variances, quartiles…), analyse des distributions…</font></p><font size="5">
+</font><p><font size="5">Les variables quantitatives continues du jeu de données suivent une loi normale, comme nous pouvons le voir ici avec le taux de CO2 émis par km. </font></p>
 
-<img data-src="Rplot.png" class="r-stretch quarto-figure-center"><p class="caption">Ethanol vs le reste</p></section>
-<section id="test" class="slide level2">
-<h2>Test</h2>
-<img src="Rplot.png">
-<style>
-.midcenter {
-    position: fixed;
-    top: 100%;
-    left: 0%;
-}
-</style>
+<img data-src="Diapo_rendu_files/figure-revealjs/unnamed-chunk-1-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="analyse-bivariée">Analyse bivariée</h3>
+<p><font size="5"> Voici un résultat que j’ai obtenu : Il me permet de voir qu’il existe deux groupes lorsqu’on regarde les émissions de CO2 en fonction de la consommation : le carburant éthanol contre les autres types de carburants.</font></p>
+
+<img data-src="Diapo_rendu_files/figure-revealjs/unnamed-chunk-2-1.png" width="960" class="r-stretch"></section>
+<section class="slide level2">
+
+<h3 id="application-r-shiny">Application R Shiny</h3>
+<p><font size="5"> A travers cette application, nous pouvons avoir avoir une idée des marques dont les voitures émettent le plus de CO2, et de voir que la taille du moteur et la consommation moyenne sont corrélés au taux de CO2 émis. Dans le tableau de droite, nous pouvons voir directement les moyennes de quelques variables par marques, que l’on peu trier par ordre croissant et décroissant, et sur le graphique de gauche nous pouvons visualiser ces données, on peut afficher en rouge la courbe d’une marque en la séléctionnant dans l’onglet juste en dessous. </font> <img data-src="Images/r_shiny.png" style="width:50.0%" alt="Mon application Shiny:"></p>
 </section>
 <section id="puis-avec-julia" class="slide level2">
 <h2>Puis avec Julia</h2>
-<h3 id="modèle-de-machine-learning-prédiction">Modèle de machine learning prédiction</h3>
+<h3 id="modèle-de-machine-learning">Modèle de machine learning</h3>
+<p><font size="5"> Voici les modèles que j’ai utilisé ainsi que leurs scores :</font></p><font size="5">
+<h4 id="knn">KNN :</h4>
+<p>J’obtient une accuracy de 0.87, et donc un taux d’erreur de 13%, ce qui me satisfait.</p>
+<h5 id="svm">SVM :</h5>
+<p>J’obtient une accuracy de 0.783, et donc un taux d’erreur de 21,7%, ce qui représente une erreur sur 5 prédiction, ce qui n’est pas terrible</p>
+<h5 id="arbre-de-classification">Arbre de classification :</h5>
+<p>J’obtient une accuracy de 0.847, et donc un taux d’erreur de 15.3%, ce quiest moins bon que le KNN mais quand même satisfaisant.</p>
+<h5 id="arbre-de-prédiction">Arbre de prédiction :</h5>
+</font><p><font size="5">Voici quelque socre que j’ai calculé : * la distance moyenne entre la valeur prédite et la valeur réelle est 2.32. * La distance maximum est de 82.375, ce qui est assez grand. * La distance minimum est de 0, donc prédit parfaitement. Outre les valeurs extrèmes, les prédictions sont satisfaisantes. </font></p>
+</section>
+<section class="slide level2">
+
+<h3 id="interface-avec-dash.jl">Interface avec Dash.jl</h3>
+<p><font size="5"> J’ai créé une interface graphique avec Dash.jl, elle se veut sobre car le plus important ici est la prédiction des données.</font></p><font size="5">
+<p>Il suffit de remplacer les noms des variables dans les cases par ses propres données, tant qu’il n’y a pas assez de variables entrées, la prédiction affiche “non”, sinon la prédiction s’affiche en face du modèle correspondant. <img data-src="Images/interface_julia.png" alt="Mon application Shiny:"></p>
+</font><p><font size="5">J’ai aussi ajouter un graphique contenant le taux d’émission de CO2 des véhicules en mettant en valeur les types de carburant. </font></p>
+</section>
+<section id="conclusion" class="slide level2">
+<h2>Conclusion :</h2>
+<p><font size="5"> Je suis assez satisfait de ce projet.</font></p><font size="5">
+<p>En effet, celui-ci m’a permis de prendre en main de nouveau outils, tel que Julia, Dash, et R Shiny, ce qui me sera très utile pour la suite. Cependant, je n’ai pas réussi à voir deux grandes différences entre Python, que je connaissais déja, et Julia pour faire du machine learning.</p>
+<p>Je suis aussi satisfait de mon projet car j’ai réussi à créer quatres modèles assez fiables, et je les ai rendus assez simples à utiliser.</p>
+</font><p><font size="5"></font></p>
 <div class="footer footer-default">
 
 </div>
@@ -587,6 +609,44 @@ Gabriel Macé
         ]
       });
     </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
     <script id="quarto-html-after-body" type="application/javascript">
     window.document.addEventListener("DOMContentLoaded", function (event) {
       const toggleBodyColorMode = (bsSheetEl) => {

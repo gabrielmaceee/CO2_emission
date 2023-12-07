@@ -1,5 +1,5 @@
 ---
-title: "Rapport_projet"
+title: "Projet R/Julia"
 author: "Gabriel Macé"
 format: html
 editor: visual
@@ -50,111 +50,131 @@ J'ai tout d'abord rendu les données exploitable en renommant les variables, en 
 
 #### Analyse univariée : 
 
- * Calcul des st
- * Plot et table pour comprendre la distribution des variables
+ * Calcul des statistiques basiques (moyennes, variances, quartiles...)
+ * Graphiques et tables pour comprendre la distribution des variables.
+ Les variables quantitatives continues du jeu de données suivent une loi normale, comme nous pouvons le voir ici avec le taux de CO2 émis par km.
 ```{r}
  names(emission)[names(emission)=="CO2.Emissions.g.km."]<-"CO2_emissions"
  emission$CO2_emissions<-as.double(emission$CO2_emissions)
  hist(emission$CO2_emissions)
 ```
- * Test loi : Info sur la normalité malheuresement pas de tests de shapiro.wilk car échantillon trop grand.
+ * Test sur les lois : Malheuresement je n'ai pas pu réaliser de tests sur la normalité des distributions en utilisant le test de Shapiro Wilk car l'échantillon est trop grand.
 
 #### Analyse mulitvariée : 
- * Plot 
- * Calcul de corrélation 
- * Test anova
- 
-Par exemple, consommation mixte et émission de CO2 très corrélés, plus groupe conso émission : éthanol vs le reste
+ * Graphiques : J'ai réalisé plusieurs graphiques en analysant plusieurs variables, me permettant notamment de voir qu'il existe deux groupes lorsqu'on regarde les émissions de CO2 en fonction de la consommation : le carburant éthanol contre les autres types de carburants.
+```{r}
+ names(emission)[names(emission)=="Fuel.Consumption.Hwy..L.100.km."]<-"Consommation.autoroute"
+ colors <- c("orange","black","blue", "green","red")
+ plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)],   main = "Emission de CO2 en connaissant le type de carburant")
+ legend("topleft",legend = levels(factor(emission$Fuel.Type)), pch=19,col = colors, cex = 0.75)
+
+ colors <- c("red","red","red","green","red")
+ plot(emission$Consommation.autoroute,emission$CO2_emissions, pch=19,col = colors[factor(emission$Fuel.Type)],   main = "Emission de CO2 en connaissant le carburant")
+ legend("topleft",legend = c("Autre","Ethanol"), pch=19,col = c("red","green"))
+```
+ * Calcul de corrélation. 
+ * Test anova entre les variables qualitatives et le taux d'émissions de CO2.
+ * $\chi ^2$ d'indépendance entre les variables quantitatives et le taux d'émissions de CO2.
+J'ai conscience que mon analyse statistique n'est pas complète, mais le but de mon projet était surtout d'apprendre à utiliser Julia pour la science des données.
 
 ### Application Shiny
+
+```{r, eval = FALSE}
+library(shiny)
+runApp("App")
+```
+![Mon application Shiny:](Images/r_shiny.png)
+Le but premier de cette application, outre d'apprendre à créer une interface avec R Shiny, est d'avoir une idée des marques dont les voitures émettent le plus de CO2, et de voir que la taille du moteur et la consommation moyenne sont corrélés au taux de CO2 émis. J'ai donc regrouper les véhicules par marques, et calculé la taille moyenne des moteurs, la consommation moyenne, et le taux moyen d'émission de CO2 par marque. Ces données sont disponibles dans le tableau de droite, que l'on peu trier par ordre croissant et décroissant des 4 variables, et visibles sur le graphique de gauche, où l'on peut afficher en rouge la courbe d'une marque en la séléctionnant dans l'onglet juste en dessous.
+
+Je voulais aussi intégrer les carburants, mais pour cela j'aurai du inclure tout les individus et le tableau aurait été très grand.
 
 ## Partie Julia
 
 ### Machine learning
 
-Les packages utilisés Les modèles utilisés Les fonctions de prédiction marche avec des nulls pour certaines variables tsais
-Train vs test
-pas naives Bayes
+#### Les packages
+Les principaux packages que j'ai utilisé sont :
+ * MLJ, qui permet les fonctions générales de machine learning (git, predict, transform...)
+ * CSV, pour charger le jeu de données
+ * DataFrames et RDatasets, pour gérer le jeu de données
+ * JLD2 pour enregistrer mes modèles finaux
+ * Ainsi que ceux relatifs à chaque type de modèle :  DecisionTree, LIBSVM, KNNClassifier
 
-Pas de one hot encoding -> créé trop de variables pour pas assez de bénéfices
-Pour tout sauf arbre de prédiction car régression : Emission de CO2-> intervalles
-KNN:
-Que données numériques : garde que Engine	Cylinders	City	Hwy	Comb  centrés et réduits+ le type de carburant sous formes de 1=ethanol ou 0 =autres
-Accuracy=0.8744920993227991
+#### Les modèles
 
-erreur=0.1255079006772009
+J'ai choisit d'utilisé quatres types de modèles différents, dont trois de classification : Les k-plus proches voisins, une machine à vecteurs de support, un arbre de classification, et un arbre de régression.
+J'ai aussi voulu utiliser un naive Bayes, mais l'hypothèse de normalité et très forte et je n'ai pas pu tester la normalité des distributions de mes variables.
 
-SVM : 
-pareil knn
-misclassification_rate(ypred, y[test])
-sans train test : 0.17562626946513202
-avec train test : 0.2383747178329571
-Avec onehotencoding et standardisation : 0.2383747178329571
-juste quanti normalisé et gpe éthanol / pas éthanol : 0.21760722347629796
+Pour réaliser mes modèles, j'ai d'abord découper le jeu de données en train / test afin de séléctionner les meilleurs paramètres. 
+Pour le KNN et le SVM, j'ai centré et réduit mes données quantitatives afin de ne pas avoir de problèmes d'échelles.
+Pour tout les modèles sauf l'arbre de régression, j'ai transformé la variable "Emission de CO2" sous forme d'intervalles afin de pouvoir classifier.
+Enfin, j'ai ajouter une variable quantitative binaire, correspondant au carburant : 0 si c'est de l'éthanol, 1 sinon.
 
-Arbre classif : Pas de centrér / réduire car pas besoin -> calcul de discrimination par vairable ne dépend pas de l'échelle des données
-println(accuracy(ypred, ycut[test]))
-correct_classes = count(ycut[test] .== ypred)
-sans séparateur ethanol/ autres : 0.8474040632054176 1877
-avec : 0.8478555304740406 1878 -> pas besoin de le mettre
+##### KNN :
 
-feature_importances(dc_mach)
- :Comb => 0.6884300907914488
-          :mpg => 0.13632411706780562
-         :Fuel => 0.06304304492675829
-        :Model => 0.024815616034138187
-          :Hwy => 0.020684547820196953
-         :City => 0.018899549252805934
- :Transmission => 0.015229398070205001
-         :Make => 0.012218636352082814
-        :Class => 0.009817851434885375
-       :Engine => 0.009157560861057703
-    :Cylinders => 0.0013795873886153665
+Etant donné que le KNN ne traite que les données numériques, on ne garde que les cinq variables quantitatives (centrées et réduites) et la nouvelle variable binaire correspondant au type de carburant.
+J'ai essayé de faire du one hot encoding afin d'utiliser mes variables qualitatives, mais cela rajouter beaucoup de données et donc de temps de calcul pour peu de bénéfices.
+J'ai essayé de type de distance : Manhattan et l'euclidienne, et il s'est arrivé que la meilleur était celle de Manhattan. Avec ces paramètres, j'obtient une accuracy de 0.87, et donc un taux d'erreur de 13%, ce qui me satisfait.
+
+
+##### SVM : 
+
+Pour le SVM, il faut utiliser que des variables quantitatives, j'ai donc utiliser du one hot encoding, mais ça a rendu le modèle moins juste. En effet, avec les variables quantitatives "one hot encodées", j'obtiens un taux d'erreur de 0.238, alors que sans il est de 0.217, j'ai donc utilisé les mêmes variables que pour le KNN.
+
+##### Arbre de classification :
+Pour les arbres, les mesures de discriminations par variables ne sont pas sensibles aux problèmes d'échelles, je n'ai donc pas besoin de centrér / réduire mes données. De plus, les arbres prennet tous types de données en entrée, je peux donc utiliser tout celle de mon jeu de données. Par contre, la nouvelle variable ethanol vsles autres n'améliore pas le modèle ici, je ne l'ai donc pas utilisé dans mon modèle final, et j'obtiens une accuracy de 0.847.
+Les arbres permettent de connaitre l'importance des variables dans la classification, ici la consommation mixte était de loin la plus important.
+
+
+
+##### Arbre de prédiction : 
+Ici, les variables sont les mêmes que pour l'arbre précédent, mais ici la variable séparatrice éthanol vs le reste améliore le modèle.
+J'ai codé des indicateurs pour me rendre compte de la justesse des valeurs prédites par l'arbre:
+ * la distance moyenne entre la valeur prédite et la valeur réelle est 2.32.
+ * La distance maximum est de 82.375, ce qui est assez grand.
+ * La distance minimum est de 0, donc prédit parfaitement.
+
+Ici aussi, la variable la plus importante est de loin la consommation mixte, ce qui ne m'étonnes pas car elle porte l'information de toutes les autres variables, la consommation mixte dépend des autres consommations, du poids de la voiture donc du type de modèle, de la taille du moteur, du type de carburant...
+
+
     
-
-arbre prediction : 
-Avec séparateur ethanol / autres :
-distance moyenne : 2.3221264890113633
-distance max 82.375 i = 38
-distance min 0.0 i = 10
-0.8126410835214447
-4.64
-Mieux avec 
-
-features importances :
-12-element Vector{Pair{Symbol, Float64}}:
-         :Comb => 0.9468955190288346
-           :x1 => 0.04072398439516061
-         :Fuel => 0.008915364610652754
-          :mpg => 0.002059993780793983
-         :Make => 0.0002781544095387943
-         :City => 0.0002618791574918742
-          :Hwy => 0.0002515058094895561
-       :Engine => 0.0002043988304768994
-        :Model => 0.0001975699501606361
- :Transmission => 0.00011767092304548185
-        :Class => 6.361214981587146e-5
-    :Cylinders => 3.0346954538855293e-5
-### Création de package avec github
-
-Interface_julia.jl ne dépend que de fonctions.jl qui ne dépend d'aucun autre fichier car j'ai exporté les modèles finis et optimisés.
+#### Les fonctions
+J'ai crée des fonctions pour chaque afin de pouvoir entrée des données brutes et prédire directement le taux de CO2 émis.
+Celles correspondants au SVM et KNN prennent en entrée les variables quantitatives, même si celles si ne rentreront pas en compte dans la prédiction, elles peuvent donc être nulles.
+J'ai aussi remarqué que les variables qualitatives avaient peu d'influence sur la prédiction des arbres, ce n'est donc pas grave ne pas savoir le type de transmissions de sa voiture par exemple.
 
 ### Interface avec Dash.jl
 
-Au début je voulais faire en sorte que le véhicule prédit se voit dans le graphique mais je n'ai pas réussi à faire apparaitre le point.
+J'ai créé une interface graphique avec Dash.jl, elle se veut sobre car le plus important ici est la prédiction des données.
+![Mon application Shiny:](Images/interface_julia.png)
+J'ai aussi ajouter un graphique contenant le taux d'émission de CO2 des véhicules en mettant en valeur les types de carburant. Au début je voulais faire en sorte que le véhicule prédit apparaissent dans le graphique mais je n'ai pas réussi à faire apparaitre ce point.
+Je pense aussi que j'aurai du gérer les noms de carburants pour faciliter l'entrée des données.
+Le principal pour moi a été d'apprendre à utiliser Dash.jl.
+
+### Création de package avec github
+
+J'ai créé deux packages avec github, [un](https://github.com/gabrielmaceee/Mon_Package_Julia.jl) ne contentant que le package julia, afin de faciliter l'importation de ce dernier dans julia, et [un](https://github.com/gabrielmaceee/CO2_emission) contenant tout le projet.
+Voici un exemple de comment utiliser mon package :
+![1](Images/julia_add_mpj.png)
+![2](Images/julia_using_mpj.png)
+![3](Images/julia_prediction.png)
 
 ## Problèmes rencontrés :
 
-Importation de package bugger souvent, j'ai du supprimer Julia, défragmenter mon disque dur, tout réinstaller.
-Plusieurs fois.
-Super.
-Top.
-Belle expérience.
+Au cours de ce porjet, j'ai rencontré peu de soucis, juste lorsque j'ai commencé à utiliser Julia, j'ai eu un problème avec l'importation de package, que j'ai résolu en supprimant Julia, défragmentant mon disque dur, et en réinstallant tout.
 
-## CCL :
+
+## Conclusion :
 
 ### Points forts
 
+J'ai réussi à créer quatres modèles assez fiables, et surtout j'ai utilisé de nouveaux outils (Julia et R Shiny), que je pense avoir rapidement pris en main.
+
 ### Points faibles
 
-### Limites: Jeu de données du Canada difficilement exploitable avec des données française par exemple
+Je pense que j'aurai pu coupler Julia et R.
+De plus, à travers ce projet je n'ai pas réussi à utiliser tous ce que l'on a vu en cours (environnement, dispatching...).
+
+### Limites: 
+
+Le jeu de données provenant du Canada, je ne suis pas sure que mes modèles prédisent correctement le taux d'émissions de CO2 de véhicules français par exemple, même si nous avons vu que les données les plus importantes étaient celles relatives à la consommation des véhicules.

@@ -65,7 +65,7 @@ end
             Mon_Package_Julia.predire_svm(Make, Model, Class, parse(Float64, Taille), parse(Float64, Cylinders), Transmission, Fuel, parse(Float64, City), parse(Float64,Hwy), parse(Float64, Comb)),
         "Non","Non")
     end
-    p = Mon_Package_Julia.predire_val_arbre(Make, Model, Class, parse(Float64, Taille), parse(Float64, Cylinders), Transmission, Fuel, parse(Float64, City), parse(Float64,Hwy), parse(Float64, Comb))
+    p = Mon_Package_Julia.predire_val_arbre(Make, Model, Class, parse(Float64, Taille), parse(Float64, Cylinders), Transmission, Fuel, parse(Float64, City), parse(Float64,Hwy), parse(Float64, Comb))[1]
     #scatter!([parse(Int64,Comb)],[trunc(Int32,p)], color="black", label = "nouveau", marker_size= 12)
     s = string.(p)
     return (
